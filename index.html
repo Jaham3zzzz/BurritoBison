@@ -5,11 +5,19 @@
   <title>Burrito Bison</title>
   <link rel="stylesheet" href="style.css">
 
+  <!-- Safe Kongregate API shim -->
   <script>
     window.kongregate = {
-      services: { connect: () => {} },
-      stats: { submit: (a,b) => console.log("Stat:", a, b) },
-      payments: { showRegDialog: () => {} },
+      services: {
+        connect: () => console.log("Kongregate connect called"),
+        requestItemList: () => console.log("Kongregate requestItemList called")
+      },
+      stats: {
+        submit: (a,b) => console.log("Stat:", a, b)
+      },
+      payments: {
+        showRegDialog: () => console.log("Kongregate showRegDialog called")
+      },
       getUsername: () => "Guest",
       getUserId: () => 0
     };
@@ -24,6 +32,7 @@
       padding: 0;
       width: 100%;
       height: 100%;
+      background: #000; /* optional */
     }
 
     .webgl-content {
