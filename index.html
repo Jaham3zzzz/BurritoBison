@@ -1,65 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Burrito Bison</title>
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Full Kongregate API stub -->
-  <script>
-    window.kongregate = {
-      services: {
-        connect: () => console.log("Kongregate connect called"),
-        requestItemList: () => console.log("Kongregate requestItemList called"),
-        showRegistrationBox: () => console.log("Kongregate showRegistrationBox called"),
-        isGuest: () => true
-      },
-      stats: {
-        submit: (name, value) => console.log(`Stat submitted: ${name} = ${value}`)
-      },
-      payments: {
-        showRegisterDialog: () => console.log("Kongregate showRegisterDialog called")
-      },
-      getUsername: () => "Guest",
-      getUserId: () => 0
-    };
-  </script>
-
-  <script src="UnityProgress.js"></script>
-  <script src="burrito-bison-ll.js"></script>
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-    }
-
-    .webgl-content {
-      width: 100%;
-      height: 100%;
-    }
-
-    #gameContainer {
-      width: 100%;
-      height: 100%;
-    }
-  </style>
-</head>
-<body>
-  <div class="webgl-content">
-    <div id="gameContainer"></div>
-  </div>
-
-  <script>
-    var gameInstance = UnityLoader.instantiate("gameContainer", "burrito-bison-ll.json", {
-      onProgress: UnityProgress,
-      Module: {
-        onRuntimeInitialized: () => UnityProgress(gameInstance, "complete")
-      }
-    });
-  </script>
-</body>
-</html>
+<link rel="stylesheet" href="style.css">
+    <script src="UnityProgress.js"></script>
+	<script src="burrito-bison-ll.js"></script>
+	<script src="kongregate_api.js"></script>
+    <script>
+      var gameInstance = UnityLoader.instantiate("gameContainer", "burrito-bison-ll.json", {onProgress: UnityProgress,Module:{onRuntimeInitialized: function() {UnityProgress(gameInstance, "complete")}}});
+    </script>
+    <div class="webgl-content">
+        <div id="gameContainer" style="width: 100%; height: 100%; margin: auto"></div>
+        </div>
