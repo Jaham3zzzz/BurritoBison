@@ -1,3 +1,5 @@
+// Modified Kongregate API code - Removed embedding restrictions
+
 var Kongregate = Kongregate || {};
 Kongregate.Utils = Kongregate.Utils || {};
 Kongregate.Utils.catchErrors = function(a, b, c) {
@@ -305,7 +307,9 @@ Kongregate.contentLoaded = function(a) {
     onMessageReceived: function(a) {
       var c = a.origin ||
         a.originalEvent.origin;
-      this._targetOrigin && c !== this._targetOrigin ? Kongregate.Log.debug(this.logPrefix(), "Ignoring message from " + c) : (c = this.parseMessage(a.data)) && this.processMessage(c, a)
+      // REMOVED: Origin validation that blocked external sites
+      // this._targetOrigin && c !== this._targetOrigin ? Kongregate.Log.debug(this.logPrefix(), "Ignoring message from " + c) : 
+      (c = this.parseMessage(a.data)) && this.processMessage(c, a)
     },
     processMessage: function(a, c) {
       Kongregate.Log.debug(this.logPrefix(), "Message received:", a);
@@ -329,7 +333,7 @@ Kongregate.contentLoaded = function(a) {
           params: "string" === typeof c ? JSON.parse(c) : c
         };
         this.supportsObjects() || (d = JSON.stringify(d));
-        //for (var e = this._targetOrigin || "*", k = 0; k < this._targetWindows.length; k++) this._targetWindows[k].postMessage(d, e)
+        for (var e = this._targetOrigin || "*", k = 0; k < this._targetWindows.length; k++) this._targetWindows[k].postMessage(d, e)
       }
     },
     connect: function() {
@@ -1483,15 +1487,8 @@ KongregateAPI.prototype = {
     this._processParentKongregateParams();
     this._processParams(location.search.split("?")[1]);
     this._updateDebugLevel();
-    if (this._postMessageParams = !this.flashVarsObject().kongregate_username && top != window) {
-      var a = this;
-      Kongregate.polyfillJSON();
-      Kongregate.PostMessage.addMessageListener(window,
-        function(b) {
-          a._messageOriginIsKongregate(b) && (b = Kongregate.PostMessage.parseMessage(b.data)) && "params" === b.type && a._handleParamsMessage(b.data)
-        });
-      top.postMessage("kongregate_request_params", "*")
-    } else this._paramsReceived = !0;
+    // REMOVED: postMessage param check that blocked external sites
+    this._paramsReceived = !0;
     setTimeout(this._hijackUnityErrorHandler, 0)
   },
   flashVarsString: function() {
@@ -1504,8 +1501,8 @@ KongregateAPI.prototype = {
     return this._flashVarsObject[a]
   },
   loadAPI: function(a) {
-    !this._postMessageParams || this._paramsReceived ?
-      this._doLoadAPI(a) : this._loadCallbacks.push(a)
+    // REMOVED: postMessage param validation
+    this._doLoadAPI(a)
   },
   getAPI: function() {
     return this._services
@@ -1603,9 +1600,8 @@ KongregateAPI.prototype = {
       a + "=" + b + "&")
   },
   _messageOriginIsKongregate: function(a) {
-    var b = decodeURIComponent(this._flashVarsObject.kongregate_host || "");
-    a = a.origin;
-    return b && (a === b || a == "http://" + b || a == "https://" + b)
+    // REMOVED: Origin validation that blocked external sites
+    return true; // Always return true to allow messages from any origin
   },
   _createJavascriptApi: function() {
     var a = this;
@@ -1645,7 +1641,7 @@ KongregateAPI.prototype = {
       b = this.flashVarsObject(),
       b = new Kongregate.MessageConnection({
         target_window: top,
-        target_origin: decodeURIComponent(b.kongregate_host),
+        target_origin: decodeURIComponent(b.kongregate_host || "*"), // Use wildcard instead of Kongregate domain
         channel_id: b.kongregate_channel_id,
         retry_connection: !0
       });
@@ -2201,7 +2197,8 @@ Kongregate.StatisticServices.prototype = {
     }
   };
   a.SWRVE_EVENT_IDENTIFIER = "swrve.";
-  a.SWRVE_BARE_EVENT_IDENTIFIER = a.SWRVE_EVENT_IDENTIFIER + "__bare_";
+  a.SWRVE_BARE_EVENT_IDENTIFIER = a.SWRVE_EVENT_IDENTIFIER +
+    "__bare_";
   a.SWRVE_SESSION_START_IDENTIFIER = a.SWRVE_BARE_EVENT_IDENTIFIER +
     "session_start";
   a.SWRVE_USER_IDENTIFIER = a.SWRVE_BARE_EVENT_IDENTIFIER + "user";
@@ -2291,7 +2288,8 @@ Kongregate.StatisticServices.prototype = {
     ch: p,
     ch_v: /chrome/i.test(g) ? parseFloat(g.replace(/^.*chrome\/(\d+(\.\d+)?).*$/i, "$1")) : !1,
     sf: /safari/i.test(g) && !p,
-    wk: /webkit/i.test(g) ? parseFloat(g.replace(/^.*webkit\/(\d+(\.\d+)?).*$/i, "$1")) :
+    wk: /webkit/i.test(g) ? parseFloat(g.replace(/^.*webkit\/(\d+(\.\d+)?).*$/i,
+      "$1")) :
       !1,
     x64: /win64/i.test(g) && /x64/i.test(g),
     moz: /mozilla/i.test(g) ? parseFloat(g.replace(/^.*mozilla\/([0-9]+(\.[0-9]+)?).*$/i, "$1")) : 0,
